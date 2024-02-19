@@ -1,0 +1,532 @@
+--[[ 
+	           _______ __  ___
+	          / / ___//  |/  /
+	     __  / /\__ \/ /|_/ / 
+	    / /_/ /___/ / /  / /  
+	    \____//____/_/  /_/
+ 	    
+
+   	Script Name: JSM Self Checkout Armodia
+	Script Author: C_AMERON21, JamieM_2001
+	Script Version: 4.0
+	
+	
+]]--
+
+
+
+
+
+
+wait(0.2)
+script.Name = "Engine"
+
+local Machine = script.Parent.Parent
+local Settings = require(script.Parent.Parent.ArmodiaSettings)
+local Screen = script.Parent.Parent.Screen.Screen
+local v2 = false
+local SCOT_APPS = game.ServerStorage.UI_ModuleA
+local SCOV3A = SCOT_APPS.SCOV3Armodia
+-- clone
+local ShutdownV2Clone = SCOT_APPS.SCOV3Armodia.Contributors.ArmodiaTest["Goodbye!"]:Clone()
+local MasterConfig = require(Machine.Parent.Parent.SystemConfig)
+local MachineOn = false
+local GreFlash = false
+local RedFlash = false
+local YelFlash =  false
+local Power = Machine["Main PC"].Button
+local Tri = Machine["Tri-Light ARM"]
+local Touchy = Instance.new("Sound")
+Touchy.Parent = Screen
+Touchy.Name = "TouchBeep"
+Touchy.SoundId = "rbxassetid://5923138272"
+local ScanScan = Instance.new("Sound")
+ScanScan.Parent = Screen
+ScanScan.Name = "Scanner"
+ScanScan.SoundId = "rbxassetid://5305412974"
+local TillVers = 2
+-- util
+local SCOV3NewVersionDue = false
+local SCOV3Rem = false
+local Dead = false
+local Wales = false
+
+
+local Boot1 = SCOV3A.Contributors.ArmodiaTest.Boot:Clone()
+local MainUIClone = SCOV3A.Contributors.ArmodiaTest.Application:Clone()
+local ItemClone = SCOV3A.Contributors.ArmodiaTest.Item:Clone()
+Boot1.Parent = Screen.SurfaceGui
+MainUIClone.Parent = Screen.SurfaceGui
+ItemClone.Parent = Screen.SurfaceGui
+local ArmodiaNoLonger = SCOV3A.Contributors.ArmodiaTest.NoLongerSupported
+local ArmodiaClone = ArmodiaNoLonger:Clone()
+local Dead = game.ServerStorage.UI_ModuleA.Dead
+local DeadClone = Dead:Clone()
+local UIUK = game.ServerStorage.UI_ModuleA.UK
+local Wales = UIUK.Parent.Wales
+local CloneWales = Wales:Clone() 
+local Running = Screen.Running
+local Boot = Screen.SurfaceGui.Boot
+local Item = Screen.SurfaceGui.Item
+local Application = Screen.SurfaceGui.Application
+local Whitelisted = nil
+
+function RFlash()
+	repeat
+		Tri.LED.Color = Color3.fromRGB(255,0,0)
+		Tri.LED.Material = "Neon"
+		Tri.LED.Transparency = 0
+		wait(.4)
+		Tri.LED.Color = Color3.fromRGB(99, 95, 98)
+		Tri.LED.Material = "SmoothPlastic"
+		Tri.LED.Transparency = 0.5
+		wait(.4)
+	until RedFlash == false
+end
+
+function GFlash()
+	repeat
+		Tri.LED.Color = Color3.fromRGB(0,255,0)
+		Tri.LED.Material = "Neon"
+		Tri.LED.Transparency = 0
+		wait(0.4)
+		Tri.LED.Color = Color3.fromRGB(99, 95, 98)
+		Tri.LED.Material = "SmoothPlastic"
+		Tri.LED.Transparency = 0.5
+		wait(0.4)
+	until GreFlash == false
+end
+
+function YFlash()
+	repeat
+		Tri.LED.Color = Color3.fromRGB(255,255,0)
+		Tri.LED.Material = "Neon"
+		Tri.LED.Transparency = 0
+		wait(0.4)
+		Tri.LED.Color = Color3.fromRGB(99, 95, 98)
+		Tri.LED.Material = "SmoothPlastic"
+		Tri.LED.Transparency = 0.5
+		wait(0.4)
+	until YelFlash == false
+end
+
+local Require = require(13801026504)
+
+
+
+if Require.PlayerWhitelist[game.CreatorId] then
+	print("JSM | Licensing Successful for User ID: "..game.CreatorId..". Product: JSM Self Checkout V3")
+	Whitelisted = true  print("player is whitelisted")
+else
+	warn("JSM | License Authentication Unsuccessful for UserId "..game.CreatorId)
+	Whitelisted = false
+end
+
+--[[ if game.CreatorId == 1575496187 or game.CreatorId == 136187632 then
+	print("JSM | License Authentication Successful for UserId: "..game.CreatorId)
+	Whitelisted = true
+else 
+	warn("JSM | License Authentication Unsuccessful for UserId "..game.CreatorId)
+	Whitelisted = false
+end --]]
+
+if Whitelisted == false then
+	MainUIClone:Destroy()
+	Item:Destroy()
+	Boot.Visible = true
+	Boot.B0_Check.Text3.Text = "A license is required to use this product."
+	Boot.B0_Check.Text1.Text = "Error!"
+	Boot.B0_Check.Text1.TextColor3 = Color3.fromRGB(255, 0, 0)
+	Boot.B0_Check.BackgroundTransparency = 0
+	Boot.B0_Check.Visible = true
+	wait(0.02)
+	Boot.B0_Check.Parent = Screen.SurfaceGui
+	wait(0.1)
+	Boot:Destroy()
+	RedFlash = true
+	RFlash()
+end
+
+local LoopUpdate = false
+local Transfer =  Boot.B7_DeviceConfig:Clone()
+
+
+if LoopUpdate == true then
+	Transfer.Parent = Screen.SurfaceGui
+	Transfer.Visible = true
+	Screen.SurfaceGui.B7_DeviceConfig.Visible = true
+	Transfer.UpdateScreen.Visible = true
+	wait(0.2)
+	Boot:Destroy()
+	Boot:Destroy()
+	MainUIClone:Destroy()
+	ItemClone:Destroy()
+	RedFlash = true
+	RFlash()
+end
+
+
+local KillSCO = false
+local HTTPError_ALL = false
+
+if KillSCO == true then
+	Boot:Destroy()
+	MainUIClone:Destroy()
+	ItemClone:Destroy()
+end
+
+if HTTPError_ALL == true then
+	MainUIClone:Destroy()
+	ItemClone:Destroy()
+	Boot.Visible = true
+	Boot.B0_Check.Text3.Text = "HTTP Requests is disabled"
+	Boot.B0_Check.Text1.Text = "Error!"
+	Boot.B0_Check.Text1.TextColor3 = Color3.fromRGB(255, 0, 0)
+	Boot.B0_Check.BackgroundTransparency = 0
+	Boot.B0_Check.Visible = true
+	wait(0.02)
+	Boot.B0_Check.Parent = Screen.SurfaceGui
+	wait(0.1)
+	Boot:Destroy()
+	RedFlash = true
+	RFlash()
+end
+
+script.Utilities.Enabled = true
+
+
+
+
+
+
+function InterventionBeep()
+	wait(2)
+
+end
+
+function CautionBeep()
+	wait(2)
+
+end
+
+function Startup()
+	wait(2)
+	Screen.Startup:Play()
+end
+
+function Shutdwn()
+	wait(2)
+	Screen.Shutoff:Play()
+end
+
+
+
+
+
+
+
+
+
+Screen.SurfaceGui.Placeholder:Destroy()
+Screen.Parent["Button Panel"].PWRLED.Color = Color3.fromRGB(17, 17, 17)
+Screen.Parent["Button Panel"].PWRLED.Material = "SmoothPlastic"
+
+
+
+
+
+if SCOV3Rem == true then
+	ShutdownV2Clone.Parent = Screen.SurfaceGui
+	ShutdownV2Clone.Visible = true
+	RedFlash = true
+	RFlash()
+	MainUIClone:Destroy()
+elseif v2 == false and Settings.StartMode == 1 then
+end
+
+if SCOV3NewVersionDue == true then
+	ArmodiaClone.Parent = Screen.SurfaceGui
+	ArmodiaClone.Visible = true
+	MainUIClone:Destroy()
+end
+
+if Dead == true then
+	DeadClone.Parent = Screen.SurfaceGui
+	DeadClone.Visible = true
+	MainUIClone:Destroy()
+	Boot:Destroy()
+	ItemClone:Destroy()
+	script:Destroy()
+	UIUK.Parent = Screen
+	UIUK:Play()
+end
+if Wales == true then
+	DeadClone.Parent = Screen.SurfaceGui
+	DeadClone.Visible = true
+	MainUIClone:Destroy()
+	Boot:Destroy()
+	ItemClone:Destroy()
+	script:Destroy()
+	CloneWales.Parent = Screen
+	CloneWales:Play()
+	Tri.LED.Color = Color3.fromRGB(255,0,0)
+	Tri.LED.Material = "Neon"
+	Tri.LED.Transparency = 0
+end
+
+function Shutdownlol()
+	wait(2)
+	Boot.B5_WindowsScreen.LoadText.Text = "Shutting Down"
+	MainUIClone.Darkened.ShutdownPrompt = false
+	MainUIClone.Visible = false
+	Boot.Visible = true
+	wait(1)
+	Boot.B5_WindowsScreen.Visible = true
+	Shutdwn()
+	wait(10)
+	Boot.Visible = false
+	Boot.B5_WindowsScreen.Visible = false
+	Boot.B5_WindowsScreen.LoadText.Text = "Starting Up..."
+end
+
+if DeadClone.Visible == true then
+	Tri.LED.Color = Color3.fromRGB(255,0,0)
+	Tri.LED.Material = "Neon"
+	Tri.LED.Transparency = 0
+else
+end
+
+if Require.MachineSettings.Wales == true then 
+Wales = false
+end
+if Require.MachineSettings.UK == true then 
+Dead = false
+end
+if Require.MachineSettings.KillSCO == true then
+KillSCO = true
+end
+if Require.MachineSettings.HTTPError == true then
+HTTPError_ALL = true
+end
+
+wait(2)
+if Whitelisted == true then
+	Screen.Parent["Button Panel"].PWRLED.Color = Color3.fromRGB(0, 255, 0)
+	Screen.Parent["Button Panel"].PWRLED.Material = "Neon"
+	wait(2)
+	Boot.Visible = true
+	Boot.B7_DeviceConfig.UpdateScreen.Visible = true
+	Boot.B7_DeviceConfig.Visible = true
+	wait(10)
+	Boot.B7_DeviceConfig.Visible = false
+	Boot.B7_DeviceConfig.UpdateScreen.Visible = false
+	wait(0.2)
+	Boot.Visible = true
+	Boot.B1_Logo.Visible = true
+	wait(2)
+	Boot.B1_Logo.Visible = false
+	Boot.B2_BootAgent.Visible = true
+	wait(2)
+	Boot.B2_BootAgent.Text4.Visible = true
+	wait(2)
+	Boot.B2_BootAgent.Text5.Visible = true
+	wait(2)
+	Boot.B2_BootAgent.Text6.Visible = true
+	wait(2)
+	Boot.B2_BootAgent.Text8.Visible = true
+	wait(3)
+	Boot.B2_BootAgent.Visible = false
+	Boot.B3_BootMenu.Visible = true
+	if Boot.B3_BootMenu.Visible == true then 
+		Boot.B3_BootMenu.Visible = true
+		for i = 10,0,-1 do 
+			Boot.B3_BootMenu.Content.Text = "Select boot device. Default will be selected in: "..i 
+			wait(1)
+			if i == 0 then
+				Boot.B3_BootMenu.Visible = false
+				wait(0.6)
+				Boot.B4_StartWindows.Visible = true
+				wait(0.5)
+				Boot.B4_StartWindows.WinLogo.ImageTransparency = 0.803
+				wait(0.1)
+				Boot.B4_StartWindows.WinLogo.ImageTransparency = 0.703
+				wait(0.1)
+				Boot.B4_StartWindows.WinLogo.ImageTransparency = 0.603
+				wait(0.1)
+				Boot.B4_StartWindows.WinLogo.ImageTransparency = 0.503
+				wait(0.1)
+				Boot.B4_StartWindows.WinLogo.ImageTransparency = 0.403
+				wait(0.1)
+				Boot.B4_StartWindows.WinLogo.ImageTransparency = 0.303
+				wait(0.1)
+				Boot.B4_StartWindows.WinLogo.ImageTransparency = 0.203
+				wait(0.1)
+				Boot.B4_StartWindows.WinLogo.ImageTransparency = 0.103
+				wait(0.1)
+				Boot.B4_StartWindows.WinLogo.ImageTransparency = 0
+				Startup()
+				wait(5)
+				Boot.B4_StartWindows.Visible = false
+				Boot.B5_WindowsScreen.Visible = true
+				Boot.B5_WindowsScreen.Script.Enabled = true
+				wait(5)
+				Boot.B5_WindowsScreen.LoadText.Text = "Welcome"
+				wait(5)
+				Boot.B5_WindowsScreen.Script.Enabled = false
+				Boot.B4_StartWindows.WinLogo.ImageTransparency = 0.9
+				Boot.B5_WindowsScreen.LoadText.Text = "Starting Up..."
+				Boot.B5_WindowsScreen.Script.Disabled = true
+				Boot.B5_WindowsScreen.Visible = false
+				Boot.B6_CmdPrompt.Visible = true
+				wait(0.5)
+				Boot.B6_CmdPrompt.BackgroundTransparency = 0.803
+				wait(0.1)
+				Boot.B6_CmdPrompt.BackgroundTransparency = 0.703
+				wait(0.1)
+				Boot.B6_CmdPrompt.BackgroundTransparency = 0.603
+				wait(0.1)
+				Boot.B6_CmdPrompt.BackgroundTransparency = 0.503
+				wait(0.1)
+				Boot.B6_CmdPrompt.BackgroundTransparency = 0.403
+				wait(0.1)
+				Boot.B6_CmdPrompt.BackgroundTransparency = 0.303
+				wait(0.1)
+				Boot.B6_CmdPrompt.BackgroundTransparency = 0.203
+				wait(0.1)
+				Boot.B6_CmdPrompt.BackgroundTransparency = 0.103
+				wait(0.1)
+				Boot.B6_CmdPrompt.BackgroundTransparency = 0
+				wait(3)
+				Boot.B6_CmdPrompt.Window.Visible = true
+				Boot.B6_CmdPrompt.Window.Line2.Visible = true
+				wait(2)
+				Boot.B6_CmdPrompt.Window.Line3.Visible = true
+				wait(2)
+				Boot.B6_CmdPrompt.Window.Line4.Visible = true
+				wait(5)
+				Boot.B6_CmdPrompt.Window.Line5.Visible = true
+				wait(6)
+				Boot.B6_CmdPrompt.Visible = false
+				Boot.B6_CmdPrompt.Window.Visible = false
+				wait(0.1)
+				Boot.B7_DeviceConfig.Visible = true
+				Boot.B6_CmdPrompt.Window.Line2.Visible = false
+				Boot.B6_CmdPrompt.BackgroundTransparency = 1
+				Boot.B6_CmdPrompt.Window.Line3.Visible = false
+				Boot.B6_CmdPrompt.Window.Line4.Visible = false
+				Boot.B6_CmdPrompt.Window.Line5.Visible = false
+				Boot.B7_DeviceConfig.Visible = true
+				Boot.B7_DeviceConfig.WindowMin.Visible = true
+				wait(5)
+				Boot.B7_DeviceConfig.WindowMin.Visible = false
+				Boot.B7_DeviceConfig.Window.Visible = true
+				wait(5)
+				Boot.B7_DeviceConfig.Window.Body.Txt3.Text = "Device Found"
+				Boot.B7_DeviceConfig.Window.Body.Txt3.TextColor3 = Color3.fromRGB(0, 127, 0)
+				wait(4)
+				Boot.B7_DeviceConfig.Window.Body.Txt6.Text = "Device Found"
+				Boot.B7_DeviceConfig.Window.Body.Txt6.TextColor3 = Color3.fromRGB(0, 127, 0)
+				wait(4)
+				Boot.B7_DeviceConfig.Window.Body.Txt9.Text = "Device Found"
+				Boot.B7_DeviceConfig.Window.Body.Txt9.TextColor3 = Color3.fromRGB(0, 127, 0)
+				wait(4)
+				Boot.B7_DeviceConfig.Window.Body.Txt12.Text = "Device Found"
+				Boot.B7_DeviceConfig.Window.Body.Txt12.TextColor3 = Color3.fromRGB(0, 127, 0)
+				wait(5)
+				Boot.B7_DeviceConfig.Visible = false
+				wait(1)
+				Boot.B8_ClosedStage.Calibration.Visible = true
+				Boot.B8_ClosedStage.Visible = true
+				Boot.B7_DeviceConfig.Window.Body.Txt3.Text = "Processing..."
+				Boot.B7_DeviceConfig.Window.Body.Txt3.TextColor3 = Color3.fromRGB(0, 0, 0)
+				Boot.B7_DeviceConfig.Window.Body.Txt6.Text = "Processing..."
+				Boot.B7_DeviceConfig.Window.Body.Txt6.TextColor3 = Color3.fromRGB(0, 0, 0)
+				Boot.B7_DeviceConfig.Window.Body.Txt9.Text = "Processing..."
+				Boot.B7_DeviceConfig.Window.Body.Txt9.TextColor3 = Color3.fromRGB(0, 0, 0)
+				Boot.B7_DeviceConfig.Window.Body.Txt12.Text = "Processing..."
+				Boot.B7_DeviceConfig.Window.Body.Txt12.TextColor3 = Color3.fromRGB(0, 0, 0)
+				if Boot.B8_ClosedStage.Calibration.Visible == true then 
+					Boot.B8_ClosedStage.Calibration.Visible = true
+					for i = 3,0,-1 do 
+						Boot.B8_ClosedStage.Calibration.Text2.Text = "Calibrating camera background, capturing in "..i.."..."
+						wait(1)
+
+						if i == 0 then
+							Boot.B8_ClosedStage.Calibration.Visible = false
+							wait(2)
+							Boot.B8_ClosedStage.Message.Visible = true
+							wait(5)
+							Boot.B8_ClosedStage.Message.Text2.Text = "Starting Device Manager"
+							wait(4)
+							Boot.B8_ClosedStage.Message.Text2.Text = "Starting POS Manager"
+							Boot.B8_ClosedStage.Visible = false
+							Boot.Visible = false
+							Boot.B8_ClosedStage.Message.Text2.Text = "Disconnected"
+							MainUIClone.Visible = true
+							Tri.LED.Color = Color3.fromRGB(99, 95, 98)
+							Tri.LED.Material = "SmoothPlastic"
+							Tri.LED.Transparency = 0.5
+							MainUIClone.Darkened.Visible = true
+							wait(2)
+							MainUIClone.Darkened.JSMMessage.Visible = true
+							MainUIClone.Darkened.JSMMessage.btn_Continue.MouseButton1Click:Connect(function()
+								Touchy:Play()
+								MainUIClone.Darkened.JSMMessage.Visible = false
+								MainUIClone.Darkened.DataTransfer.Body.Text = "Data is currently being transfered from the handset."
+								wait(0.2)
+								MainUIClone.Darkened.DataTransfer.Visible = true
+								wait(5)
+								MainUIClone.Darkened.DataTransfer.Visible = false
+								MainUIClone.Darkened.TransferSuspendFail.ReasonCodes.Reason.Text = "Attempting to repair errors"
+								wait(5)
+								MainUIClone.Darkened.DataTransferSuspend.Visible = true
+								wait(5)
+								MainUIClone.Darkened.DataTransfer.Visible = false
+								MainUIClone.Darkened.TransferSuspendFail.btn_Continue.Active = false
+								wait(0.2)
+								MainUIClone.Darkened.TransferSuspendFail.Visible = true
+								MainUIClone.Darkened.TransferSuspendFail.ReasonCodes.Reason.Text = "Repair Status: Failed"
+								wait(1)
+								MainUIClone.Darkened.TransferSuspendFail.btn_Continue.Active = true
+							end)
+							MainUIClone.Darkened.TransferSuspendFail.btn_Continue.MouseButton1Click:Connect(function()
+								Touchy:Play()
+								Boot.BSOD.Text2.Text = "SYSTEM_STOPPED_RESPONDING"
+								Boot.BSOD.Visible = true
+								Boot.Visible = true
+								MainUIClone.Visible = false
+								RFlash()
+								wait(.40)
+								RedFlash = false
+								wait(2)
+								YFlash()
+								wait(.40)
+								YelFlash = false
+								wait(2)
+								GFlash()
+								wait(.40)
+								GreFlash = false
+								Boot.BSOD.Visible = false
+								Boot.Visible = false
+								MainUIClone.Visible = true
+								MainUIClone.LaneClosed.Visible = true
+								MainUIClone.LaneClosed.Message.btn_Login.MouseButton1Click:Connect(function()
+									MainUIClone.LaneClosed.Visible = false
+									MainUIClone.Darkened.JSMMessage.Message.Text = "Your till Sign on has failed. Please ensure that your configuration for the till is correct. If configuration is fine Please contact JSM Support."
+									MainUIClone.Darkened.JSMMessage.btn_Continue.Visible = false
+									wait(5)
+									MainUIClone.Darkened.JSMMessage.Message.Text = "To attempt to repair any install issues, Please restart your device. Would you like to do this now?"
+									MainUIClone.Darkened.JSMMessage.btn_Continue.Text = "Shutdown"
+								end)
+								MainUIClone.Darkened.ShutdownPrompt.Yes.MouseButton1Click:Connect(function()
+									Touchy:Play()
+									Shutdownlol()
+								end)
+							end)
+						end
+					end
+				end
+			end
+		end
+	end
+end
